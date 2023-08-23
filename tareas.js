@@ -8,26 +8,32 @@ const rl = readline.createInterface({
 const tasks = [];
 
 function addTask(description) {
-  tasks.push({ description, completed: false });
-  console.log('Tarea añadida.');
+  return new Promise((resolve, reject) => {
+    tasks.push({ description, completed: false });
+    resolve('Tarea añadida.');
+  });
 }
 
 function removeTask(index) {
-  if (index >= 0 && index < tasks.length) {
-    tasks.splice(index, 1);
-    console.log('Tarea eliminada.');
-  } else {
-    console.log('Índice inválido.');
-  }
+  return new Promise((resolve, reject) => {
+    if (index >= 0 && index < tasks.length) {
+      tasks.splice(index, 1);
+      resolve('Tarea eliminada.');
+    } else {
+      reject('Índice inválido.');
+    }
+  });
 }
 
 function completeTask(index) {
-  if (index >= 0 && index < tasks.length) {
-    tasks[index].completed = true;
-    console.log('Tarea completada.');
-  } else {
-    console.log('Índice inválido.');
-  }
+  return new Promise((resolve, reject) => {
+    if (index >= 0 && index < tasks.length) {
+      tasks[index].completed = true;
+      resolve('Tarea completada.');
+    } else {
+      reject('Índice inválido.');
+    }
+  });
 }
 
 function listTasks() {
@@ -37,26 +43,38 @@ function listTasks() {
   });
 }
 
-function mainMenu() {
-  rl.question('Elige una opción:\n1. Añadir tarea\n2. Eliminar tarea\n3. Completar tarea\n4. Listar tareas\n5. Salir\n', (choice) => {
+async function mainMenu() {
+  rl.question('Elige una opción:\n1. Añadir tarea\n2. Eliminar tarea\n3. Completar tarea\n4. Listar tareas\n5. Salir\n', async (choice) => {
     switch (choice) {
       case '1':
-        rl.question('Introduce la descripción de la tarea: ', (description) => {
-          addTask(description);
-          mainMenu();
-        });
+        const description = await new Promise(resolve => rl.question('Introduce la descripción de la tarea: ', resolve));
+        try {
+          const result = await addTask(description);
+          console.log(result);
+        } catch (error) {
+          console.log(error);
+        }
+        mainMenu();
         break;
       case '2':
-        rl.question('Introduce el índice de la tarea a eliminar: ', (index) => {
-          removeTask(parseInt(index) - 1);
-          mainMenu();
-        });
+        const indexToRemove = await new Promise(resolve => rl.question('Introduce el índice de la tarea a eliminar: ', resolve));
+        try {
+          const result = await removeTask(parseInt(indexToRemove) - 1);
+          console.log(result);
+        } catch (error) {
+          console.log(error);
+        }
+        mainMenu();
         break;
       case '3':
-        rl.question('Introduce el índice de la tarea a completar: ', (index) => {
-          completeTask(parseInt(index) - 1);
-          mainMenu();
-        });
+        const indexToComplete = await new Promise(resolve => rl.question('Introduce el índice de la tarea a completar: ', resolve));
+        try {
+          const result = await completeTask(parseInt(indexToComplete) - 1);
+          console.log(result);
+        } catch (error) {
+          console.log(error);
+        }
+        mainMenu();
         break;
       case '4':
         listTasks();
